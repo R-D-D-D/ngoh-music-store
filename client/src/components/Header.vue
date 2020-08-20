@@ -6,7 +6,7 @@
       absolute
       color="#343A40"
     )
-      router-link.font-weight-black.pl-3#logo(to="/") Ngoh Music Store
+      router-link.font-weight-black.pl-3#logo(to="/") Ngoh Store
       v-spacer
 
       //- v-toolbar-items(v-if="!$store.state.isUserLoggedIn")

@@ -25,7 +25,9 @@
         h1.font-weight-black(style="font-size:2.6rem;") {{ product.name }}
         div.font-weight-black(style="font-size:1.6rem; color:#616161;") S$ {{ product.price.toFixed(2) }}
         div.font-weight-medium(style="font-size:1.6rem;") {{ product.description }}
-        v-btn.mt-4(color="#EC5252" dark large) Buying Instruction
+        v-btn.mt-4.font-weight-bold(large color="#1EBEA5" dark href="https://wa.me/6598638720" target="blanck")
+          v-icon(left large) $vuetify.icons.whatsapp
+          | Contact Me
 
 </template>
 
@@ -44,8 +46,8 @@ export default {
         "dots": true,
         "infinite": true,
         "slidesToScroll": 1,
-        "autoplay": true,
-        "autoplaySpeed": 2000,
+        // "autoplay": true,
+        // "autoplaySpeed": 2000,
         "pauseOnDotsHover": true,
         "pauseOnFocus": true,
         "pauseOnHover": true,

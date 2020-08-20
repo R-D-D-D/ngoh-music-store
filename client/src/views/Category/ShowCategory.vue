@@ -5,7 +5,7 @@
         h1.font-weight-black(style="font-size:3rem;") {{ category.name }}
       v-col(v-for="(product, index) in products" :key="index" sm="6" md="4" lg="3" xl="2")
         v-card.mx-auto
-          v-img.white--text.align-end(v-if="product.images" height="200px" :src="product.images[0].url" gradient="to top right, rgba(0,0,0,.5), rgba(0,0,0,.5)")
+          v-img.white--text.align-end(v-if="product.images && product.images[0]" height="200px" :src="product.images[0].url" gradient="to top right, rgba(0,0,0,.5), rgba(0,0,0,.5)")
             v-card-title(style="text-shadow: 1px 1px 2px #000000;") {{ product.name }}
           v-card-subtitle.pb-0.text-left.font-weight-bold S$ {{ product.price.toFixed(2) }}
           v-card-actions

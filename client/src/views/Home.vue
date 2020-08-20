@@ -3,7 +3,7 @@
     v-container
       v-row.mt-10
         v-col.text-left(cols="8")
-          h1 Welcome to Mr Ngoh's Music Store!
+          h1 Welcome to Mr Ngoh's Store
 
       v-row.mb-12
         v-col(cols="8")
@@ -40,7 +40,7 @@
           h1 {{ category.name }}
         v-col(v-for="product in category.products" sm="6" md="4" lg="3" xl="2")
           v-card.mx-auto
-            v-img.white--text.align-end(v-if="product.images[0]" height="200px" :src="product.images[0].url" gradient="to top right, rgba(0,0,0,.5), rgba(0,0,0,.5)")
+            v-img.white--text.align-end(v-if="product.images && product.images[0]" height="200px" :src="product.images[0].url" gradient="to top right, rgba(0,0,0,.5), rgba(0,0,0,.5)")
               v-card-title(style="text-shadow: 1px 1px 2px #000000;") {{ product.name }}
             v-card-subtitle.pb-0.text-left.font-weight-bold S$ {{ product.price.toFixed(2) }}
             v-card-actions
