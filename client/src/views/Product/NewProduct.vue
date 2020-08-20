@@ -1,5 +1,7 @@
 <template lang="pug">
   v-container
+    v-overlay(:value="overlay")
+      v-progress-circular(indeterminate size="64")
     v-form(ref="form" @submit.prevent="submit")
       v-row.mb-8
         v-col.text-center
@@ -81,6 +83,8 @@ export default {
           return true
         }
       ],
+      overlay: false,
+      error: ''
     }
   },
 
@@ -90,23 +94,29 @@ export default {
 
   methods: {
     async submit () {
-      if (this.$refs.form.validate()) {
-        console.log(this.categories.find(cat => cat.name == this.category).id)
-        const product = (await ProductService.create({
-          name: this.name,
-          price: this.price,
-          description: this.description,
-          cid: this.categories.find(cat => cat.name == this.category).id
-        })).data.product
+      try {
+        if (this.$refs.form.validate()) {
+          this.overlay = true
+          console.log(this.categories.find(cat => cat.name == this.category).id)
+          const product = (await ProductService.create({
+            name: this.name,
+            price: this.price,
+            description: this.description,
+            cid: this.categories.find(cat => cat.name == this.category).id
+          })).data.product
 
-        for (let i = 0; i < this.images.length; i++) {
-          let formData = new FormData()
-          formData.set('pid', product.id)
-          formData.append('file', this.images[i])
-          await ImageService.create(formData)
+          for (let i = 0; i < this.images.length; i++) {
+            let formData = new FormData()
+            formData.set('pid', product.id)
+            formData.append('file', this.images[i])
+            await ImageService.create(formData)
+          }
+
+          this.$router.push('/')
         }
-
-        this.$router.push('/')
+      } catch (err) {
+        this.overlay = false
+        this.error = err
       }
     }
   },
