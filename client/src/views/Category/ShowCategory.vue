@@ -8,11 +8,11 @@
           v-img.white--text.align-end(v-if="product.images && product.images[0]" height="200px" :src="product.images[0].url" gradient="to top right, rgba(0,0,0,.5), rgba(0,0,0,.5)")
             v-card-title(style="text-shadow: 1px 1px 2px #000000;") {{ product.name }}
           v-card-subtitle.pb-0.text-left.font-weight-bold S$ {{ product.price.toFixed(2) }}
-          v-card-actions
+          v-card-actions.px-4
             v-btn(dark dense color="#343A40" :to="`/product/show/${product.id}`")
               | Details
               v-icon(right) mdi-arrow-right
-          v-card-actions
+          v-card-actions.px-4
             v-btn(v-if="$store.state.isUserLoggedIn" dark color="#343A40" @click="editProduct($event, product)")
               | Edit
             v-btn(v-if="$store.state.isUserLoggedIn" dark color="#343A40" @click="deleteProduct($event, product, index)")
