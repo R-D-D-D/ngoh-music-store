@@ -2,24 +2,50 @@
   v-container(v-if="product")
     v-row.mt-8.justify-center
       v-col(cols="11" md="8" xl="6")
-        //- carousel(v-bind="settings")
-        //-   div(v-for="image in product.Images")
-        //-     img.pa-2(:src="image.url" width="100%")
-        carousel(v-bind="settings" :slidesToShow="1")
-          div(v-for="image in product.Images" :key="image.id")
-            v-img.px-2(:src="image.url" :aspect-ratio="4/3")
-        //- carousel(ref="c1"
-        //-   :asNavFor="$refs.c2"
-        //-   :focusOnSelect="true")
-        //-   div(v-for="image in product.Images")
-        //-     v-img.mx-1(:src="image.url" :aspect-ratio="4/3")
+        //- carousel#carousel(v-bind="settings" :slidesToShow="1")
+        //-   div(v-for="image in product.Images" :key="image.id")
+        //-     v-img.px-2(:src="image.url" :aspect-ratio="4/3")
+        //-   div(v-for="image in product.Images" :key="image.id")
+        //-     v-img.px-2(:src="require('../../assets/IMG_9405.png')" :aspect-ratio="4/3")
+        //-   div.video-container
+        //-     video.video(controls)
+        //-       source(:src="require('../../assets/Verse 1 and chorus.mp4')")
 
-        //- carousel(ref="c2"
-        //-   :asNavFor="$refs.c1"
-        //-   :slidesToShow="4"
-        //-   :focusOnSelect="true")
-        //-   div(v-for="image in product.Images")
-        //-     v-img.ml-1(:src="image.url" :aspect-ratio="4/3")
+        v-row.justify-center
+          v-col(cols="12")
+            agile.main(ref="main" :options="options1" :as-nav-for="asNavFor1" style="background-color:black;")
+              div.slide(v-for="(slide, index) in slides", :key="index", :class="`slide--${index}`")
+                v-img(:src="slide.src" :aspect-ratio="4/3" max-height="100%" contain v-if="slide.isImage")
+                div.video-container(v-else)
+                  video.video(controls width="100%")
+                    source(:src="slide.src" type="video/mp4")
+
+
+            agile.thumbnails(ref="thumbnails" :options="options2" :as-nav-for="asNavFor2")
+              div.slide.slide--thumbniail(v-for="(slide, index) in slides", :key="index", :class="`slide--${index}`" @click="$refs.thumbnails.goTo(index)")
+                v-img(:src="slide.src" :aspect-ratio="4/3" max-height="100%" contain v-if="slide.isImage")
+                div(v-else style="position:relative; width:100%;")
+                  video(width="100%")
+                    source(:src="slide.src" type="video/mp4")
+                  div(style="position: absolute; left: 0; top: 0; width: 100%; height: 100%;")
+                    img(:src="require('../../assets/play_button.png')" style="position: absolute; width: 30px; height:30px; left: calc(50% - 15px); top: calc(50% - 15px);" color="white" size="62" )
+
+              template(slot="prevButton")
+                i.fas.fa-chevron-left
+
+              template(slot="nextButton")
+                i.fas.fa-chevron-right
+
+            //- agile.main(:dots="true")
+            //-   div(class="slide")
+            //-     v-img.px-2(:src="require('../../assets/IMG_9405.png')" :aspect-ratio="4/3")
+              
+            //-   div(class="slide")
+            //-     v-img.px-2(:src="require('../../assets/IMG_9405.png')" :aspect-ratio="4/3")
+
+            //-   div(class="slide")
+            //-     video(controls width="100%")
+            //-       source(src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_5MB.mp4" type="video/mp4")
 
       v-col.pl-md-8(cols="11" md="4" xl="6")
         h1.font-weight-black(style="font-size:2.6rem;") {{ product.name }}
@@ -36,6 +62,8 @@ import ProductService from '@/services/ProductService'
 import VueSlickCarousel from 'vue-slick-carousel'
 import 'vue-slick-carousel/dist/vue-slick-carousel.css';
 import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
+// import videojs from "video.js";
+import { VueAgile } from 'vue-agile'
 
 export default {
   name: 'ShowProduct',
@@ -48,11 +76,56 @@ export default {
         "slidesToScroll": 1,
         // "autoplay": true,
         // "autoplaySpeed": 2000,
-        "pauseOnDotsHover": true,
-        "pauseOnFocus": true,
-        "pauseOnHover": true,
+        // "pauseOnDotsHover": true,
+        // "pauseOnFocus": true,
+        // "pauseOnHover": true,
 
       },
+      player: null,
+
+      // VueAgile
+      asNavFor1: [],
+			asNavFor2: [],
+			options1: {
+				dots: false,
+				fade: true,
+				navButtons: false
+			},
+			
+			options2: {
+				// autoplay: true,
+				centerMode: true,
+				dots: false,
+				navButtons: false,
+				slidesToShow: 3,
+				responsive: [
+          {
+            breakpoint: 600,
+            settings: {
+              slidesToShow: 5
+            }
+          },
+          
+          {
+            breakpoint: 1000,
+            settings: {
+              navButtons: true
+            }
+          }
+        ]
+				
+			},
+			
+			slides: [
+        {
+          isImage: true,
+					src: 'https://rhythm-academy.s3.amazonaws.com/ngohks%40gmail.com/CDS/Hey/files/test.HEIC'
+        },
+        {
+          isImage: false,
+					src: 'https://rhythm-academy.s3.ap-southeast-1.amazonaws.com/ngohks%40gmail.com/CDS/Hey/files/vertical_1080_test.MOV'
+        },
+			]
     }
   },
 
@@ -70,16 +143,40 @@ export default {
   },
 
   components: { 
-    'carousel': VueSlickCarousel 
+    'carousel': VueSlickCarousel,
+    agile: VueAgile
   },
 
   mounted: async function () {
     this.product = (await ProductService.show(this.$route.params.product_id)).data.product
+
+    await this.$nextTick()
+    this.asNavFor1.push(this.$refs.thumbnails)
+		this.asNavFor2.push(this.$refs.main)
   }
 }
 </script>
 
 <style>
+@import '../../../node_modules/vue-agile/dist/VueAgile.css';
+
+.video-container {
+    /* width is set as 100% here. any width can be specified as per requirement */
+    width: 100%;
+    padding-top: 75%;
+    height: 0px;
+    position: relative;
+    background-color: black;
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 ul {
   padding-left: 0px !important;
 }
@@ -271,4 +368,84 @@ ul {
   opacity: 0.75;
   color: black;
 }
+
+
+</style>
+
+<style lang="sass">
+.main
+	margin-bottom: 30px
+
+.thumbnails
+	margin: 0 -5px
+	width: calc(100% + 10px)
+
+// Basic VueAgile styles
+.agile
+	&__nav-button
+		background: transparent
+		border: none
+		color: #ccc
+		cursor: pointer
+		font-size: 24px
+		transition-duration: .3s
+	
+		.thumbnails &
+			position: absolute
+			top: 50%
+			transform: translateY(-50%)
+
+			&--prev
+				left: -45px
+	
+			&--next
+				right: -45px
+
+		&:hover
+			color: #888
+
+	&__dot
+		margin: 0 10px
+
+		button 
+			background-color: #eee
+			border: none
+			border-radius: 50%
+			cursor: pointer
+			display: block
+			height: 10px
+			font-size: 0
+			line-height: 0
+			margin: 0
+			padding: 0
+			transition-duration: .3s
+			width: 10px
+
+		&--current,
+		&:hover
+			button
+				background-color: #888
+
+// Slides styles	
+.slide
+	align-items: center
+	box-sizing: border-box
+	color: #fff
+	display: flex
+	justify-content: center
+
+	&--thumbniail
+		cursor: pointer
+		height: 100px
+		padding: 0 5px
+		transition: opacity .3s
+
+		&:hover
+			opacity: .75
+
+	img
+		height: 100%
+		object-fit: cover
+		object-position: center
+		width: 100%
 </style>

@@ -1,7 +1,7 @@
 const AuthenticationController = require('./controllers/AuthenticationController')
 const CategoryController = require('./controllers/CategoryController')
 const ProductController = require('./controllers/ProductController')
-const ImageController = require('./controllers/ImageController')
+const FileController = require('./controllers/FileController')
 
 const AuthenticationControllerPolicy = require('./policies/AuthenticationControllerPolicy')
 const isAuthenticated = require('./policies/isAuthenticated')
@@ -63,16 +63,16 @@ module.exports = (app) => {
     isAuthenticated,
     ProductController.destroy),
 
-  // image
-  app.get('/image/list',
-    ImageController.list),
+  // file
+  app.get('/file/list',
+    FileController.list),
     
-  app.post('/image/new',
+  app.post('/file/new',
     upload.single('file'),
     isAuthenticated,
-    ImageController.create),
+    FileController.create),
 
-  app.delete('/image/del',
-    ImageController.destroy)
+  app.delete('/file/del',
+    FileController.destroy)
 }
   

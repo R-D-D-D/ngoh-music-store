@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Product.associate = function (models) {
     Product.belongsTo(models.Category)
-    Product.hasMany(models.Image)
+    Product.hasMany(models.File)
   }
   
   return Product

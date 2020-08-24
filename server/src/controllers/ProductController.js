@@ -1,6 +1,6 @@
 const {Product} = require('../models')
 const {Category} = require('../models')
-const {Image} = require('../models')
+const {File} = require('../models')
 const {sequelize} = require('../models')
 const {Sequelize} = require('sequelize')
 const {Op} = require('sequelize')
@@ -14,7 +14,7 @@ module.exports = {
         where: {
           id: pid
         },
-        include: [Image, Category]
+        include: [File, Category]
       })
             
       if (!product) {

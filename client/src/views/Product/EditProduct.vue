@@ -26,9 +26,12 @@
               v-list-item-content(style="flex-grow: 2;")
                 v-list-item-title {{ image.name }}
 
+        v-col.pb-0(cols='12' md="8")
+          v-file-input(v-model="newProduct.images" label="Upload additional contents..." multiple outlined color="#343A40" accept="image/*")
+
       v-row.justify-center
         v-col.text-center
-          v-btn.mx-2(large color="#343A40" @click='submit' dark) 
+          v-btn.mx-2(large color="#343A40" @click='submit' dark)
             v-icon(left) mdi-content-save-outline
             | Save
           v-btn.mx-2(large color="#343A40" to="/" dark) 

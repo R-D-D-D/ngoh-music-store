@@ -1,12 +1,31 @@
 <template lang="pug">
   div
+    v-row
+      v-col.pt-0(syle="position:relative;")
+        v-img(:src="require('../assets/bg.jpg')")
+          v-container(style="position:absolute; top:0; left:0; right:0;" v-if="!isPhone")
+            v-row.mt-10
+              v-col.text-left(cols="8" style="color:white; text-shadow: 2px 2px 4px #000000;")
+                h1 Welcome to Mr Ngoh's Store
+
+            v-row.mb-12
+              v-col(cols="8")
+                v-autocomplete(v-model='model' :items='items' :loading='isLoading' :search-input.sync='search' cache-items multiple clearable hide-details hide-selected item-text='name' item-value='symbol' label='Search for a product...' solo)
+                  template(v-slot:no-data)
+                    v-list-item
+                      v-list-item-title
+                        | Search for a product
+                  template(v-slot:item='{ item }')
+                    v-list-item(:to="`/product/show/${item.id}`")
+                      v-list-item-content {{ item.name }}
+
     v-container
-      v-row.mt-10
-        v-col.text-left(cols="8")
+      v-row(v-if="isPhone")
+        v-col.text-left(cols="12" md="8")
           h1 Welcome to Mr Ngoh's Store
 
-      v-row.mb-12
-        v-col(cols="8")
+      v-row.mb-12(v-if="isPhone")
+        v-col(cols="12" md="8")
           v-autocomplete(v-model='model' :items='items' :loading='isLoading' :search-input.sync='search' cache-items multiple clearable hide-details hide-selected item-text='name' item-value='symbol' label='Search for a product...' solo)
             template(v-slot:no-data)
               v-list-item
@@ -16,7 +35,7 @@
               v-list-item(:to="`/product/show/${item.id}`")
                 v-list-item-content {{ item.name }}
 
-      v-divider
+      v-divider(v-if="isPhone")
 
       v-row.mb-12
         v-col(cols="12")
@@ -38,7 +57,7 @@
       v-row(v-for="category in categories").mt-10
         v-col.text-left(cols="12")
           h1 {{ category.name }}
-        v-col(v-for="product in category.products" sm="6" md="4" lg="3" xl="2")
+        v-col(v-for="product in category.products" cols="12" sm="6" md="4" lg="3" xl="2")
           v-card.mx-auto
             v-img.white--text.align-end(v-if="product.images && product.images[0]" height="200px" :src="product.images[0].url" gradient="to top right, rgba(0,0,0,.5), rgba(0,0,0,.5)")
               v-card-title(style="text-shadow: 1px 1px 2px #000000;") {{ product.name }}
@@ -96,7 +115,17 @@ export default {
     }, 700)
   },
 
-  computed: mapState(['user']),
+  computed: {
+    isPhone () {
+      if (this.$vuetify.breakpoint.name == "sm" || this.$vuetify.breakpoint.name == "xs") {
+        return true
+      } else {
+        return false
+      }
+    },
+
+    ...mapState(['user'])
+  },
 
   methods: {
     async deleteCategory (event, category, index) {

@@ -21,17 +21,19 @@
           v-text-field(label='Price' v-model='price' outlined color="indigo" :rules="priceRules")
 
         v-col.pb-0(cols='12' md="8")
-          v-file-input(v-model="images" label="Upload images..." multiple outlined color="#343A40" accept="image/*")
+          v-file-input(v-model="files" label="Upload files and videos..." multiple outlined color="#343A40" accept="image/heic, image/*, video/mp4,video/*" :rules="fileRules")
         
         v-col.pt-0(cols="12" md="8")
-          v-list
-            draggable(v-model="images")
-              transition-group
-                v-list-item.draggable-item.elevation-2(v-for="(image, idx) in images" :key="idx")
-                  v-list-item-icon
-                    v-icon mdi-image
-                  v-list-item-content(style="flex-grow: 2;")
-                    v-list-item-title {{ image.name }}
+          h3 Drag and drop to reorder them
+          draggable.row(v-model="files" ref="draggable" @end="onEnd" :key="rerender")
+            v-col.pa-0.ma-2.draggable-item(v-for="(file, idx) in files" :key="file.size" cols="4" md="3" lg="2" xl="1" style="border: 1px solid #BDBDBD; position:relative;")
+              v-img(:src="window.URL.createObjectURL(file)" :aspect-ratio="4/3" width="100%" contain v-if="file.type.includes('image')")
+              div.video-container(v-else style="background: transparent !important;")
+                video.video
+                  source(:src="window.URL.createObjectURL(file)" type="video/quicktime" v-if="file.type.includes('quicktime')")
+                  source(:src="window.URL.createObjectURL(file)" type="video/mp4" v-else)
+                div(style="position: absolute; left: 0; top: 0; width: 100%; height: 100%;")
+                  img(:src="require('../../assets/play_button.png')" style="position: absolute; width: 30px; height:30px; left: calc(50% - 15px); top: calc(50% - 15px);" color="white" size="62" )
 
       v-row.justify-center
         v-col.text-center
@@ -44,7 +46,7 @@
 /* eslint-disable */
 import CategoryService from '@/services/CategoryService'
 import ProductService from '@/services/ProductService'
-import ImageService from '@/services/ImageService'
+import FileService from '@/services/FileService'
 import draggable from 'vuedraggable'
 
 export default {
@@ -62,7 +64,7 @@ export default {
         id: 2,
         name: 'yo'
       }],
-      images: [],
+      files: [],
       alphanumricRules: [
         v => new RegExp("^[a-zA-Z0-9 !@#$%^*_(){}-]{0,100}$").test(v) || "You can only input alphanumeric characters",
       ],
@@ -76,15 +78,17 @@ export default {
       fileRules: [
         files => {
           for (var i = 0; i < files.length; i++) {
-            if (files[i].size > 104857600) {
+            if (i == 0 && files[0].type.includes('video'))
+              return 'First resource must be an image'
+            if (files[i].size > 104857600)
               return 'File cannot be larger than 100MB'
-            }
           }
           return true
         }
       ],
       overlay: false,
-      error: ''
+      error: '',
+      rerender: 1
     }
   },
 
@@ -92,27 +96,37 @@ export default {
     draggable
   },
 
+  watch: {
+    files (val) {
+      console.log(val)
+    }
+  },
+
   methods: {
+    async onEnd () {
+      this.rerender += 1
+    },
+
     async submit () {
       try {
         if (this.$refs.form.validate()) {
           this.overlay = true
-          console.log(this.categories.find(cat => cat.name == this.category).id)
           const product = (await ProductService.create({
             name: this.name,
             price: this.price,
             description: this.description,
             cid: this.categories.find(cat => cat.name == this.category).id
           })).data.product
-
-          for (let i = 0; i < this.images.length; i++) {
-            let formData = new FormData()
+          for (var i = 0; i < this.files.length; i++) {
+            var formData = new FormData()
             formData.set('pid', product.id)
-            formData.append('file', this.images[i])
-            await ImageService.create(formData)
+            formData.set('position', i)
+            formData.append('file', this.files[i])
+            await FileService.create(formData)
           }
+          this.overlay = false
 
-          this.$router.push('/')
+          // this.$router.push('/')
         }
       } catch (err) {
         this.overlay = false

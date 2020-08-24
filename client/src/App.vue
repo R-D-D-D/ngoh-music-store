@@ -27,6 +27,10 @@ export default {
 <style>
 @import '../node_modules/video.js/dist/video-js.css';
 
+html {
+  overflow-x: hidden;
+}
+
 p {
   font-size: 18px;
 }
