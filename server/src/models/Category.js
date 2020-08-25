@@ -9,6 +9,10 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: 'CASCADE',
       hooks: true
     })
+    Category.hasOne(models.File, {
+      onDelete: 'CASCADE',
+      hooks: true
+    })
   }
   
   return Category

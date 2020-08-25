@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
 
   File.associate = function (models) {
     File.belongsTo(models.Product)
+    File.belongsTo(models.Category)
   }
 
   return File

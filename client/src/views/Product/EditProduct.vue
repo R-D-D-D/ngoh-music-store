@@ -1,5 +1,7 @@
 <template lang="pug">
   v-container(v-if="product")
+    v-overlay(:value="overlay")
+      v-progress-circular(indeterminate size="64")
     v-form(ref="form" @submit.prevent="submit")
       v-row.mb-8
         v-col.text-center
@@ -19,15 +21,19 @@
           v-text-field(label='Price' v-model='newProduct.price' outlined color="indigo" :rules="priceRules")
 
         v-col(cols="12" md="8")
-          v-list
-            v-list-item(v-for="image in newProduct.images")
-              v-list-item-icon
-                v-icon mdi-image
-              v-list-item-content(style="flex-grow: 2;")
-                v-list-item-title {{ image.name }}
+          h3 Drag and drop to reorder them
+          draggable.row(v-model="newProduct.files" ref="draggable" @end="onEnd" :key="rerender")
+            v-col.pa-0.ma-2.draggable-item(v-for="(file, idx) in newProduct.files" :key="file.size" cols="4" md="3" lg="2" xl="1" style="border: 1px solid #BDBDBD; position:relative;")
+              v-img(:src="file.url" :aspect-ratio="4/3" width="100%" contain v-if="file.type.includes('image')")
+              div.video-container(v-else style="background: transparent !important;")
+                video.video
+                  source(:src="file.url" type="video/quicktime" v-if="file.type.includes('quicktime')")
+                  source(:src="file.url" type="video/mp4" v-else)
+                div(style="position: absolute; left: 0; top: 0; width: 100%; height: 100%;")
+                  img(:src="require('../../assets/play_button.png')" style="position: absolute; width: 30px; height:30px; left: calc(50% - 15px); top: calc(50% - 15px);" color="white" size="62" )
 
         v-col.pb-0(cols='12' md="8")
-          v-file-input(v-model="newProduct.images" label="Upload additional contents..." multiple outlined color="#343A40" accept="image/*")
+          v-file-input(v-model="newProduct.files" label="Upload additional contents..." multiple outlined color="#343A40" accept="file/*")
 
       v-row.justify-center
         v-col.text-center
@@ -38,12 +44,13 @@
             v-icon(left) mdi-cancel
             | Cancel
 </template>
-  
+
 <script>
 /* eslint-disable */
 import CategoryService from '@/services/CategoryService'
 import ProductService from '@/services/ProductService'
-import ImageService from '@/services/ImageService'
+import FileService from '@/services/FileService'
+import draggable from 'vuedraggable'
 
 export default {
   name: 'EditProduct',
@@ -55,7 +62,7 @@ export default {
         price: '',
         description: '',
         category: '',
-        images: []
+        files: []
       },
       categories: [{
         id: 1,
@@ -84,12 +91,23 @@ export default {
           return true
         }
       ],
+      rerender: 1,
+      overlay: false
     }
+  },
+
+  components: {
+    draggable
   },
 
   methods: {
     async submit () {
+      if (!this.newProduct.files[0].type.includes('image')) {
+        alert('Please ensure the first resource is an image')
+        return
+      }
       if (this.$refs.form.validate()) {
+        this.overlay = true
         const product = (await ProductService.edit({
           id: this.product.id,
           name: this.newProduct.name,
@@ -98,9 +116,18 @@ export default {
           cid: this.categories.find(cat => cat.name == this.newProduct.category).id
         })).data.product
 
+        for (var i = 0; i < this.newProduct.files.length; i++) {
+          this.newProduct.files[i].position = i
+          await FileService.edit(this.newProduct.files[i])
+        }
+
         this.$router.push('/')
       }
-    }
+    },
+
+    async onEnd () {
+      this.rerender += 1
+    },
   },
 
   mounted: async function () {
@@ -110,7 +137,9 @@ export default {
     this.newProduct.price = this.product.price.toFixed(2)
     this.newProduct.description = this.product.description
     this.newProduct.category = this.product.Category.name
-    this.newProduct.images = this.product.Images
+    this.newProduct.files = this.product.Files.sort(function(a, b) {
+      return a.position - b.position;
+    })
   }
 }
 </script>

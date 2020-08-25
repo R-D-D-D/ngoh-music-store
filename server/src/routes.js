@@ -23,7 +23,7 @@ module.exports = (app) => {
     AuthenticationController.adminLogin),
 
   // category management  
-  app.post('/category/new',  
+  app.post('/category/new',
     isAuthenticated,
     CategoryController.create),
 
@@ -71,6 +71,10 @@ module.exports = (app) => {
     upload.single('file'),
     isAuthenticated,
     FileController.create),
+
+  app.put('/file/edit', 
+    isAuthenticated,
+    FileController.edit),
 
   app.delete('/file/del',
     FileController.destroy)

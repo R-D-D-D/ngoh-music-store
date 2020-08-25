@@ -9,6 +9,10 @@ export default {
     return Api().post('file/new', fileInfo)
   },
 
+  edit (fileInfo) {
+    return Api().put('file/edit', fileInfo)
+  },
+
   delete (fileId) {
     return Api().delete(`file/del?fid=${fileId}`)
   }

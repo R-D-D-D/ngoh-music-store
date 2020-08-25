@@ -20,8 +20,14 @@
         v-col(cols="12" md="8")
           v-text-field(label='Price' v-model='price' outlined color="indigo" :rules="priceRules")
 
+        v-col(cols="12" md="8")
+          div Item condition
+          v-radio-group(v-model='isNew')
+            v-radio(label='New' :value='true')
+            v-radio(label='Used' :value='false')
+
         v-col.pb-0(cols='12' md="8")
-          v-file-input(v-model="files" label="Upload files and videos..." multiple outlined color="#343A40" accept="image/heic, image/*, video/mp4,video/*" :rules="fileRules")
+          v-file-input(v-model="files" label="Upload images and videos..." multiple outlined color="#343A40" accept="image/png, image/jpg, image/jpeg, video/mp4, video/ogg" :rules="fileRules")
         
         v-col.pt-0(cols="12" md="8")
           h3 Drag and drop to reorder them
@@ -56,6 +62,7 @@ export default {
       name: '',
       price: '',
       description: '',
+      isNew: null,
       category: '',
       categories: [{
         id: 1,
@@ -114,6 +121,7 @@ export default {
           const product = (await ProductService.create({
             name: this.name,
             price: this.price,
+            isNew: this.isNew,
             description: this.description,
             cid: this.categories.find(cat => cat.name == this.category).id
           })).data.product
@@ -126,7 +134,7 @@ export default {
           }
           this.overlay = false
 
-          // this.$router.push('/')
+          this.$router.push('/')
         }
       } catch (err) {
         this.overlay = false

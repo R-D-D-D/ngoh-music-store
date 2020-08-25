@@ -1,5 +1,5 @@
 const {Category} = require('../models')
-const {User} = require('../models')
+const {File} = require('../models')
 const {sequelize} = require('../models')
 const { show } = require('./ProductController')
 
@@ -9,7 +9,6 @@ module.exports = {
       await sequelize.transaction(async (t) => {
         const user = req.user
 
-        req.body.duration = 0
         const category = await Category.create(req.body, {
           transaction: t
         })
@@ -86,7 +85,8 @@ module.exports = {
       const category = await Category.findOne({
         where: {
           id: cid
-        }
+        },
+        include: File
       })
 
       if (!category) {
@@ -107,7 +107,9 @@ module.exports = {
 
   async list (req, res) {
     try {
-      const categories = await Category.findAll()
+      const categories = await Category.findAll({
+        include: File
+      })
       const categoriesJson = []
       categories.forEach(category => {
         categoriesJson.push(category.toJSON())

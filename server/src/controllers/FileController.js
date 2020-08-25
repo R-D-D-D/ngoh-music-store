@@ -36,39 +36,88 @@ module.exports = {
       await sequelize.transaction(async (t) => {
         let user = req.user
         let {pid} = req.body
+        let {cid} = req.body
+        let category = null
+        let product = null
 
-        console.log('here')
-        console.log(req.file)
+        if (cid != undefined) {
+          category = await Category.findOne({
+            where: {
+              id: cid
+            }
+          })
 
-        let product = await Product.findOne({
-          where: {
-            id: pid
-          },
-          include: Category
-        })
-
-        let key = ''
-        if (product.Category) {
-          key = `${user.email}/${product.Category.name}/${product.name}/files/${req.file.originalname}`
+          let params = {
+              Bucket: config.aws.bucket,
+              Key: `${user.email}/${category.name}/coverPhoto/${req.file.originalname}`,
+              Body: req.file.buffer
+          }
+      
+          // Uploading files to the bucket
+          const response = await s3.upload(params).promise()
+          req.body.url = response.Location
         } else {
-          key = `${user.email}/uncategorized/${product.name}/files/${req.file.originalname}`
-        }
-        let params = {
-            Bucket: config.aws.bucket,
-            Key: key,
-            Body: req.file.buffer
-        }
-    
-        // Uploading files to the bucket
-        const response = await s3.upload(params).promise()
-        req.body.url = response.Location
-        req.body.name = req.file.originalname
+          product = await Product.findOne({
+            where: {
+              id: pid
+            },
+            include: Category
+          })
 
-        let file = await product.createFile(req.body)
-        await file.setProduct(product)
+          let key = ''
+          if (product.Category) {
+            key = `${user.email}/${product.Category.name}/${product.name}/files/${req.file.originalname}`
+          } else {
+            key = `${user.email}/uncategorized/${product.name}/files/${req.file.originalname}`
+          }
+          let params = {
+              Bucket: config.aws.bucket,
+              Key: key,
+              Body: req.file.buffer
+          }
+
+          // Uploading files to the bucket
+          const response = await s3.upload(params).promise()
+          req.body.url = response.Location
+        }
+
+        req.body.name = req.file.originalname
+        req.body.type = req.file.mimetype
+
+        let file = null
+        if (cid != undefined) {
+          file = await category.createFile(req.body)
+          await file.setCategory(category)
+        } else {
+          file = await product.createFile(req.body)
+          await file.setProduct(product)
+        }
 
         res.send({
           file: file.toJSON()
+        })
+      })
+    } catch (err) {
+      console.log(err)
+      res.status(500).send({
+        error: 'an error has occured trying to create the file'
+      })
+    }
+  },
+
+  async edit (req, res) {
+    try {
+      await sequelize.transaction(async (t) => {
+        let {id} = req.body
+
+        await File.update(req.body, {
+          where: {
+            id: id
+          }
+        })
+
+        res.send({
+          data: 'ok'
         })
       })
     } catch (err) {
