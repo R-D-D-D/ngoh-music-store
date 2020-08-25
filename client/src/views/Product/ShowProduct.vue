@@ -96,8 +96,6 @@ export default {
 </script>
 
 <style>
-@import '../../../node_modules/vue-agile/dist/VueAgile.css';
-
 .video-container {
     /* width is set as 100% here. any width can be specified as per requirement */
     width: 100%;

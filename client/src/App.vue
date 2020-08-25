@@ -25,8 +25,6 @@ export default {
 </script>
 
 <style>
-@import '../node_modules/video.js/dist/video-js.css';
-
 html {
   overflow-x: hidden;
 }
